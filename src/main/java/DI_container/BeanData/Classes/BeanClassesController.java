@@ -87,7 +87,7 @@ public class BeanClassesController {
             if (PRIMITIVE_CLASSES.containsKey(arg.first)) {
                 var primClass = PRIMITIVE_CLASSES.get(arg.first);
                 var primClassInstance = primClass.cast(arg.second);
-                newArg = new BeanClassPrimType<>(primClass, primClassInstance);
+                newArg = new BeanClassPrimType<>(primClass, primClassInstance, arg.first);
             }
             else {
                 var argClass = this.beanClasses.get(arg.first);
@@ -121,7 +121,7 @@ public class BeanClassesController {
             if (PRIMITIVE_CLASSES.containsKey(arg.first)) {
                 var primClass = PRIMITIVE_CLASSES.get(arg.first);
                 var primClassInstance = primClass.cast(arg.second);
-                newArg = new BeanClassPrimType<>(primClass, primClassInstance);
+                newArg = new BeanClassPrimType<>(primClass, primClassInstance, arg.first);
             }
             else {
                 if (!this.beanClasses.containsKey(arg.first)) {

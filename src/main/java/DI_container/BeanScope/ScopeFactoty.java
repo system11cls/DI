@@ -12,7 +12,7 @@ public class ScopeFactoty {
     private final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
 
-    public <T> Scope<T> getScope(String scopeName) {
+    public Scope getScope(String scopeName) {
         if (!scopes.containsKey(scopeName)) {
             throw new RuntimeException("No scope with this name");
         }
@@ -20,7 +20,7 @@ public class ScopeFactoty {
         Class<?> scopeClass;
         try {
             scopeClass = classLoader.loadClass(scopes.get(scopeName));
-            return createScope(scopeName, scopeClass);
+            return createScope(scopeName, (Class<Scope>) scopeClass);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e.getMessage() + " (Exception in scope getting)");
         }
@@ -33,11 +33,11 @@ public class ScopeFactoty {
     }
 
 
-    private <T> Scope<T> createScope(String scopeName, Class<?> scopeClass) {
+    private Scope createScope(String scopeName, Class<Scope> scopeClass) {
         try {
             var isDep = this.threadDependedScopes.contains(scopeName);
             Object obj = scopeClass.getConstructor().newInstance();
-            var scope = (Scope<T>) obj;
+            var scope =  scopeClass.cast(obj);
             scope.setThreadDepended(isDep);
             return scope;
 

@@ -1,15 +1,15 @@
 package DI_container.BeanScope;
 
-import DI_container.Tools.Pair;
+import DI_container.BeanData.ArgToCreateObjectDto;
 
-import java.lang.reflect.Type;
 import java.util.List;
 
 public class DiProxiesGen {
 
-    public <T> T getProxy(Class<T> tClass, List<Pair<Class<?>, Object>> construction_args,
-                          List<Pair<Class<?>, Object>> setters_args) {
-
+    public <T> T getProxy(Class<T> tClass, List<ArgToCreateObjectDto> construction_args,
+                          List<ArgToCreateObjectDto> setters_args) {
+        //TODO:implement
+        return null;
     }
 }
 

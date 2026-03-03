@@ -1,20 +1,22 @@
 package DI_container.BeanData.Objects;
 
-import DI_container.Tools.Pair;
+import DI_container.BeanData.Classes.BeanClass;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 public class BeanObject<T> {
     public final String id;
     public String workingId;
     public T object;
-    public List<Pair<String, Map<String, BeanObject<?>>>> dependencies = new ArrayList<>();
+    public BeanClass<T> beanClass;
+    public Map<String, Map<String, BeanObject<?>>> dependecies = new HashMap<>();
 
     public BeanObject(String id) {
         this.id = id;
     }
 
-
+    public void setObject(Object object) {
+        this.object = (T) this.beanClass.type.cast(object);
+    }
 }
