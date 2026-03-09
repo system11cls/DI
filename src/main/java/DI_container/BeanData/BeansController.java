@@ -8,7 +8,10 @@ import DI_container.BeanData.Metadata.Metadata;
 import DI_container.BeanData.Objects.BeanObject;
 import DI_container.BeanScope.ScopeFactoty;
 import DI_container.Tools.IdGen;
+import DI_container.Tools.Pair;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,7 +20,7 @@ import java.util.Map;
 public class BeansController {
     private final BeanClassesController beanClassesController;
     private final Metadata metadata;
-
+    private final List<Pair<BeanObject<?>, List<ArgToCreateObjectDto>>> objectsToInit = new ArrayList<>();
 
     BeansController(Map<String, BeanInfo> infos, ScopeFactoty scopeFactoty, Metadata metadata) throws ClassNotFoundException {
         this.beanClassesController = new BeanClassesController(infos, scopeFactoty);
@@ -30,6 +33,7 @@ public class BeansController {
         if (beanClass.scope.isNeededInCreation()) {
             var newObject = createBeanObject(beanClass);
             id = metadata.objectToId.get(newObject);
+            initObjects();
         }
         else {
             var obj = beanClass.scope.getInstance();
@@ -37,6 +41,21 @@ public class BeansController {
         }
 
         return tClass.cast(metadata.IdThreadToBeanObject.get(id).object);
+    }
+
+    private void initObjects() {
+        for (var bObjectArgs : objectsToInit) {
+            var bObj = bObjectArgs.first;
+            var args = bObjectArgs.second;
+            try {
+                Method method = bObj.object.getClass().getMethod("init", args.getClass());
+                method.invoke(bObj.object, args);
+            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        this.objectsToInit.clear();
     }
 
     private <T> BeanObject<T> createBeanObject(BeanClass<T> beanClass) {
@@ -82,10 +101,13 @@ public class BeansController {
     private void createObject(BeanClass<?> beanClass, BeanObject<?> beanObject, String id) {
         List<ArgToCreateObjectDto> constructorArgs = getListOfArgs(beanClass.construction_args,
                 beanObject, id);
-        List<ArgToCreateObjectDto> settersArgs = getListOfArgs(beanClass.setters_args,
+        List<ArgToCreateObjectDto> construction_args_to_setters_gen = getListOfArgs(beanClass.construction_args_to_setters_gen,
+                beanObject, id);
+        List<ArgToCreateObjectDto> setters_args = getListOfArgs(beanClass.setters_args,
                 beanObject, id);
 
-        beanObject.setObject(beanClass.scope.getInstance(beanClass.type, constructorArgs, settersArgs));
+        beanObject.setObject(beanClass.scope.getInstance(beanClass.type, constructorArgs,
+                construction_args_to_setters_gen, setters_args, metadata));
     }
 
     private List<ArgToCreateObjectDto> getListOfArgs(List<BeanClassA<?>> listOfClasses,

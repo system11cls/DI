@@ -10,6 +10,7 @@ public class BeanClass<T> extends BeanClassA<T> {
     public Scope scope;
     public String name;
     public List<BeanClassA<?>> construction_args;
+    public List<BeanClassA<?>> construction_args_to_setters_gen;
     public List<BeanClassA<?>> setters_args;
     public Set<BeanClass<?>> injectedClasses;
 

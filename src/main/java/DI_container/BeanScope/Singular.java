@@ -1,6 +1,9 @@
 package DI_container.BeanScope;
 
 import DI_container.BeanData.ArgToCreateObjectDto;
+import DI_container.BeanData.Metadata.Metadata;
+import javassist.CannotCompileException;
+import javassist.NotFoundException;
 
 import java.util.List;
 
@@ -9,9 +12,11 @@ public class Singular extends Scope {
 
 
     @Override
-    protected Object getOrCreateInstance(Class<?> tClass, List<ArgToCreateObjectDto> construction_args, List<ArgToCreateObjectDto> setters_args) {
+    protected Object getOrCreateInstance(Class<?> tClass, List<ArgToCreateObjectDto> construction_args,
+                                         List<ArgToCreateObjectDto> construction_args_to_generate_setters,
+                                         List<ArgToCreateObjectDto> args_setters, Metadata metadata) throws NotFoundException, CannotCompileException {
         if (obj == null) {
-            this.obj = this.getProxy(tClass, construction_args, setters_args);
+            this.obj = this.getProxy(tClass, construction_args, construction_args_to_generate_setters, args_setters, metadata);
         }
 
         return obj;
