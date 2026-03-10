@@ -12,6 +12,12 @@ public class ScopeFactoty {
     private final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
 
+    ScopeFactoty() {
+        this.addScope("singular", Singular.class.getPackageName(), false);
+        this.addScope("prototype", Prototype.class.getPackageName(), false);
+        this.addScope("thread", ThreadScope.class.getPackageName(), true);
+    }
+
     public Scope getScope(String scopeName) {
         if (!scopes.containsKey(scopeName)) {
             throw new RuntimeException("No scope with this name");
