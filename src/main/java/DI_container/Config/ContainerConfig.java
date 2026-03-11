@@ -1,4 +1,4 @@
-package DI_container.config;
+package DI_container.Config;
 
 import jakarta.xml.bind.annotation.*;
 import java.util.ArrayList;
