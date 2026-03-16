@@ -14,8 +14,8 @@ public class Prototype extends Scope {
     }
 
     @Override
-    protected Object getOrCreateInstance(Class<?> tClass, List<ArgToCreateObjectDto> construction_args, List<ArgToCreateObjectDto> construction_args_to_generate_setters, List<ArgToCreateObjectDto> args_setters, Metadata metadata) throws NotFoundException, CannotCompileException {
-        return this.getProxy(tClass, construction_args, construction_args_to_generate_setters, args_setters, metadata);
+    protected Object getOrCreateInstance(String name, Class<?> tClass, List<ArgToCreateObjectDto> construction_args, List<ArgToCreateObjectDto> construction_args_to_generate_setters, List<ArgToCreateObjectDto> args_setters, Metadata metadata) throws NotFoundException, CannotCompileException {
+        return this.getProxy(name, tClass, construction_args, construction_args_to_generate_setters, args_setters, metadata);
     }
 
     @Override

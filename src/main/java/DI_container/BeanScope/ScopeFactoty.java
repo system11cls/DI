@@ -13,9 +13,9 @@ public class ScopeFactoty {
 
 
     ScopeFactoty() {
-        this.addScope("singular", Singular.class.getPackageName(), false);
-        this.addScope("prototype", Prototype.class.getPackageName(), false);
-        this.addScope("thread", ThreadScope.class.getPackageName(), true);
+        this.addScope("singular", Singular.class.getCanonicalName(), false);
+        this.addScope("prototype", Prototype.class.getCanonicalName(), false);
+        this.addScope("thread", ThreadScope.class.getCanonicalName(), true);
     }
 
     public Scope getScope(String scopeName) {

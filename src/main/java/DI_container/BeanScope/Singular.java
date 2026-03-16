@@ -12,11 +12,11 @@ public class Singular extends Scope {
 
 
     @Override
-    protected Object getOrCreateInstance(Class<?> tClass, List<ArgToCreateObjectDto> construction_args,
+    protected Object getOrCreateInstance(String name, Class<?> tClass, List<ArgToCreateObjectDto> construction_args,
                                          List<ArgToCreateObjectDto> construction_args_to_generate_setters,
                                          List<ArgToCreateObjectDto> args_setters, Metadata metadata) throws NotFoundException, CannotCompileException {
         if (obj == null) {
-            this.obj = this.getProxy(tClass, construction_args, construction_args_to_generate_setters, args_setters, metadata);
+            this.obj = this.getProxy(name, tClass, construction_args, construction_args_to_generate_setters, args_setters, metadata);
         }
 
         return obj;

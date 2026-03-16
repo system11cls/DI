@@ -18,12 +18,12 @@ public class ThreadScope extends Scope {
     }
 
     @Override
-    protected Object getOrCreateInstance(Class<?> tClass, List<ArgToCreateObjectDto> construction_args, List<ArgToCreateObjectDto> construction_args_to_generate_setters, List<ArgToCreateObjectDto> args_setters, Metadata metadata) throws NotFoundException, CannotCompileException {
+    protected Object getOrCreateInstance(String name, Class<?> tClass, List<ArgToCreateObjectDto> construction_args, List<ArgToCreateObjectDto> construction_args_to_generate_setters, List<ArgToCreateObjectDto> args_setters, Metadata metadata) throws NotFoundException, CannotCompileException {
         if (this.objects.containsKey(Thread.currentThread().toString())) {
          return objects.get(Thread.currentThread().toString());
         }
 
-        Object obj = this.getProxy(tClass, construction_args, construction_args_to_generate_setters, args_setters, metadata);
+        Object obj = this.getProxy(name, tClass, construction_args, construction_args_to_generate_setters, args_setters, metadata);
         this.objects.put(Thread.currentThread().toString(), obj);
         return obj;
     }

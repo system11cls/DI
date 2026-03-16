@@ -106,7 +106,7 @@ public class BeansController {
         List<ArgToCreateObjectDto> setters_args = getListOfArgs(beanClass.setters_args,
                 beanObject, id);
 
-        beanObject.setObject(beanClass.scope.getInstance(beanClass.type, constructorArgs,
+        beanObject.setObject(beanClass.scope.getInstance(beanClass.name, beanClass.type, constructorArgs,
                 construction_args_to_setters_gen, setters_args, metadata));
     }
 
