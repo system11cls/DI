@@ -12,8 +12,8 @@ public class ScopeFactoty {
     private final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
 
-    ScopeFactoty() {
-        this.addScope("singular", Singular.class.getCanonicalName(), false);
+    public ScopeFactoty() {
+        this.addScope("singleton", Singleton.class.getCanonicalName(), false);
         this.addScope("prototype", Prototype.class.getCanonicalName(), false);
         this.addScope("thread", ThreadScope.class.getCanonicalName(), true);
     }

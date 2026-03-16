@@ -7,7 +7,7 @@ import javassist.NotFoundException;
 
 import java.util.List;
 
-public class Singular extends Scope {
+public class Singleton extends Scope {
     Object obj = null;
 
 

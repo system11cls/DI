@@ -2,11 +2,11 @@ package DI_container.BeanScope.TestClassesExamples.Simple.Ex1;
 
 public class Engine {
     public String type;
-    public int horsepower;
+    public Integer horsepower;
 
     public Engine(){};
 
-    public Engine(String type, int horsepower) {
+    public Engine(String type, Integer horsepower) {
         this.type = type;
         this.horsepower = horsepower;
     }

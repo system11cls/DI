@@ -16,15 +16,15 @@ public class BeanClassesController {
 
 
     static {
-        PRIMITIVE_CLASSES.put("boolean", boolean.class);
-        PRIMITIVE_CLASSES.put("byte", byte.class);
-        PRIMITIVE_CLASSES.put("char", char.class);
-        PRIMITIVE_CLASSES.put("short", short.class);
-        PRIMITIVE_CLASSES.put("int", int.class);
-        PRIMITIVE_CLASSES.put("long", long.class);
-        PRIMITIVE_CLASSES.put("float", float.class);
-        PRIMITIVE_CLASSES.put("double", double.class);
-        PRIMITIVE_CLASSES.put("void", void.class);
+        PRIMITIVE_CLASSES.put("boolean", Boolean.class);
+        PRIMITIVE_CLASSES.put("byte", Byte.class);
+        PRIMITIVE_CLASSES.put("char", Character.class);
+        PRIMITIVE_CLASSES.put("short", Short.class);
+        PRIMITIVE_CLASSES.put("int", Integer.class);
+        PRIMITIVE_CLASSES.put("long", Long.class);
+        PRIMITIVE_CLASSES.put("float", Float.class);
+        PRIMITIVE_CLASSES.put("double", Double.class);
+        PRIMITIVE_CLASSES.put("void", Void.class);
         PRIMITIVE_CLASSES.put("string", String.class);
     }
 
@@ -32,6 +32,7 @@ public class BeanClassesController {
         this.infos = infos;
         this.scopeFactoty = scopeFactoty;
         for (var info : infos.values()) {
+            classesVisited.clear();
             createBeanClass(info);
         }
 
@@ -82,12 +83,15 @@ public class BeanClassesController {
     }
 
     private void setConstructionArgs(BeanInfo info, BeanClass<?> beanClass) {
+        beanClass.construction_args = new ArrayList<>();
+        beanClass.injectedClasses = new HashSet<>();
+        beanClass.construction_args_to_setters_gen = new ArrayList<>();
         for (var arg : info.constructor_args) {
             BeanClassA<?> newArg;
             if (PRIMITIVE_CLASSES.containsKey(arg.classPath)) {
                 var primClass = PRIMITIVE_CLASSES.get(arg.classPath);
                 var primClassInstance = primClass.cast(arg.obj);
-                newArg = new BeanClassPrimType<>(primClass, primClassInstance, arg.classPath);
+                newArg = new BeanClassPrimType<>(primClass, primClassInstance, arg.name);
             }
             else {
                 var argClass = this.beanClasses.get(arg.classPath);
@@ -119,6 +123,7 @@ public class BeanClassesController {
     }
 
     private void setSettersArgs(BeanInfo info, BeanClass<?> beanClass) {
+        beanClass.setters_args = new ArrayList<>();
         for (var arg : info.setters_args) {
             BeanClassA<?> newArg;
             if (PRIMITIVE_CLASSES.containsKey(arg.classPath)) {

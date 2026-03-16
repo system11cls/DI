@@ -32,7 +32,7 @@ public class BeansController {
         String id;
         if (beanClass.scope.isNeededInCreation()) {
             var newObject = createBeanObject(beanClass);
-            id = metadata.objectToId.get(newObject);
+            id = metadata.objectToId.get(newObject.object);
             initObjects();
         }
         else {
@@ -62,6 +62,7 @@ public class BeansController {
         String chainId = IdGen.generate();
         var newBeanObject = new BeanObject<T>(chainId);
         for (var injectedClass : beanClass.injectedClasses) {
+            if (injectedClass == null) continue;
             var depend = createBeanObject(injectedClass, chainId);
             newBeanObject.dependecies.put(injectedClass.name, new HashMap<>());
             dependInDependencies(newBeanObject, depend, chainId, injectedClass.name);
@@ -69,6 +70,7 @@ public class BeansController {
         newBeanObject.workingId = chainId;
         newBeanObject.beanClass = beanClass;
         createObject(beanClass, newBeanObject, chainId);
+        metadata.objectToId.put(newBeanObject.object, newBeanObject.id);
         metadata.IdThreadToBeanObject.put(newBeanObject.id, newBeanObject);
 
         return newBeanObject;
@@ -116,7 +118,7 @@ public class BeansController {
         for (var arg : listOfClasses) {
             ArgToCreateObjectDto newArg = new ArgToCreateObjectDto();
             if (arg instanceof BeanClass<?> argClass) {
-                newArg.obj = beanObject.dependecies.get(argClass.name).get(id);
+                newArg.obj = beanObject.dependecies.get(argClass.name).get(id).object;
                 newArg.name = argClass.name;
                 newArg.type = argClass.type;
             }

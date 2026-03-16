@@ -13,7 +13,7 @@ public class SE1Info {
         var typeArg = new ArgToCreateObjectDto(String.class, "type", "new");
         res.add(typeArg);
 
-        var horsepower = new ArgToCreateObjectDto(int.class, "horsepower", 120);
+        var horsepower = new ArgToCreateObjectDto(Integer.class, "horsepower", 120);
         res.add(horsepower);
 
         return res;
