@@ -92,13 +92,12 @@ public class DiProxiesGen implements ProxiesGenerator {
                     "public void setAllSetters() {\n" +
                             "\n" +
                             "            String id = (String) metadata.objectToId.get(this);\n" +
-                            "            id = id.concat(Thread.currentThread().getName());\n" +
                             "            \n" +
                             "            DI_container.BeanData.Objects.BeanObject beanObject = (DI_container.BeanData.Objects.BeanObject)\n" +
                             "                    metadata.IdThreadToBeanObject.get(id);\n" +
                             "\n" +
                             "            if (beanObject == null) {\n" +
-                            "                throw new RuntimeException(\"BeanObject not found\");\n" +
+                            "                throw new RuntimeException(\"BeanObject not found\".concat(id.toString()));\n" +
                             "            }\n" +
                             "            \n" +
                             "            java.util.Set keySet = (java.util.Set) beanObject.dependecies.keySet();\n" +
@@ -118,7 +117,7 @@ public class DiProxiesGen implements ProxiesGenerator {
                             "                    }\n" +
                             "                    java.util.Map threadMap = (java.util.Map) depObj;\n" +
                             "\n" +
-                            "                    String threadKey = id.concat(Thread.currentThread().toString());\n" +
+                            "                    String threadKey = id.concat(Thread.currentThread().getName());\n" +
                             "                    Object objArg = threadMap.get(threadKey);\n" +
                             "\n" +
                             "                    if (objArg == null) {\n" +
@@ -146,7 +145,7 @@ public class DiProxiesGen implements ProxiesGenerator {
                             "\n" +
                             "                        method.invoke(this, new Object[] {beanObjArg.object});\n" +
                             "                    } catch (NoSuchMethodException e) {\n" +
-                            "                        java.lang.reflect.Field field = this.getClass().getField(beanObject.beanClass.name);\n" +
+                            "                        java.lang.reflect.Field field = this.getClass().getField(beanObjArg.beanClass.name);\n" +
                             "                        field.set(this, beanObjArg.object);\n" +
                             "                    }\n" +
                             "                }\n" +
@@ -176,20 +175,20 @@ public class DiProxiesGen implements ProxiesGenerator {
 
 
                 ctClass.writeFile();
-            /*
-            ClassLoader currentClassLoader = tClass.getClassLoader();
-            GeneratedClassLoader loader = new GeneratedClassLoader(
-                    currentClassLoader,
-                    ctClass.getName(),
-                    ctClass.toBytecode()
-            );
-            */
+                /*
+                ClassLoader currentClassLoader = tClass.getClassLoader();
+                GeneratedClassLoader loader = new GeneratedClassLoader(
+                        currentClassLoader,
+                        ctClass.getName(),
+                        ctClass.toBytecode()
+                );
+                */
 
                 newClass = ctClass.toClass();
                 generated.put(name, newClass);
 
-                System.out.println("Metadata ClassLoader: " + Metadata.class.getClassLoader());
-                System.out.println("Current ClassLoader: " + newClass.getClassLoader());
+                //System.out.println("Metadata ClassLoader: " + Metadata.class.getClassLoader());
+                //System.out.println("Current ClassLoader: " + newClass.getClassLoader());
 
                 var constr = newClass.getConstructor(constrTypes.toArray(new Class<?>[0]));
 

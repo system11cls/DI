@@ -66,18 +66,18 @@ public class BeanClassesController {
 
     private void createUncreatedConstructionArgs(BeanInfo info) throws ClassNotFoundException {
         for (var arg : info.constructor_args) {
-            if (PRIMITIVE_CLASSES.containsKey(arg.classPath)) continue;
-            if (!this.infos.containsKey(arg.classPath)) {
-                throw new RuntimeException("No info about not primitive class: name == " + arg.classPath + "; during " +
+            if (PRIMITIVE_CLASSES.containsKey(arg.nameOfBean)) continue;
+            if (!this.infos.containsKey(arg.nameOfBean)) {
+                throw new RuntimeException("No info about not primitive class: name == " + arg.nameOfBean + "; during " +
                         info.name + " initialisation");
             }
 
-            if (this.classesVisited.contains(arg.classPath) && !arg.isLazy) {
-                throw new RuntimeException("Cycle found on " + info.name + " and " + arg.classPath);
+            if (this.classesVisited.contains(arg.nameOfBean) && !arg.isLazy) {
+                throw new RuntimeException("Cycle found on " + info.name + " and " + arg.nameOfBean);
             }
 
-            if (!this.beanClasses.containsKey(arg.classPath)) {
-                createBeanClass(this.infos.get(arg.classPath));
+            if (!this.beanClasses.containsKey(arg.nameOfBean)) {
+                createBeanClass(this.infos.get(arg.nameOfBean));
             }
         }
     }
@@ -88,13 +88,13 @@ public class BeanClassesController {
         beanClass.construction_args_to_setters_gen = new ArrayList<>();
         for (var arg : info.constructor_args) {
             BeanClassA<?> newArg;
-            if (PRIMITIVE_CLASSES.containsKey(arg.classPath)) {
-                var primClass = PRIMITIVE_CLASSES.get(arg.classPath);
+            if (PRIMITIVE_CLASSES.containsKey(arg.nameOfBean)) {
+                var primClass = PRIMITIVE_CLASSES.get(arg.nameOfBean);
                 var primClassInstance = primClass.cast(arg.obj);
                 newArg = new BeanClassPrimType<>(primClass, primClassInstance, arg.name);
             }
             else {
-                var argClass = this.beanClasses.get(arg.classPath);
+                var argClass = this.beanClasses.get(arg.nameOfBean);
                 beanClass.injectedClasses.add(argClass);
                 newArg = argClass;
             }
@@ -126,17 +126,17 @@ public class BeanClassesController {
         beanClass.setters_args = new ArrayList<>();
         for (var arg : info.setters_args) {
             BeanClassA<?> newArg;
-            if (PRIMITIVE_CLASSES.containsKey(arg.classPath)) {
-                var primClass = PRIMITIVE_CLASSES.get(arg.classPath);
+            if (PRIMITIVE_CLASSES.containsKey(arg.nameOfBean)) {
+                var primClass = PRIMITIVE_CLASSES.get(arg.nameOfBean);
                 var primClassInstance = primClass.cast(arg.obj);
-                newArg = new BeanClassPrimType<>(primClass, primClassInstance, arg.classPath);
+                newArg = new BeanClassPrimType<>(primClass, primClassInstance, arg.nameOfBean);
             }
             else {
-                if (!this.beanClasses.containsKey(arg.classPath)) {
-                    throw new RuntimeException("unknown setters` arg: " + arg.classPath + " in " + info.name + " initialisation");
+                if (!this.beanClasses.containsKey(arg.nameOfBean)) {
+                    throw new RuntimeException("unknown setters` arg: " + arg.nameOfBean + " in " + info.name + " initialisation");
                 }
 
-                var argClass = this.beanClasses.get(arg.classPath);
+                var argClass = this.beanClasses.get(arg.nameOfBean);
                 beanClass.injectedClasses.add(argClass);
                 newArg = argClass;
             }

@@ -30,7 +30,7 @@ public class ThreadScope extends Scope {
 
     @Override
     public boolean isNeededInCreation() {
-        return this.objects.containsKey(Thread.currentThread().toString());
+        return !this.objects.containsKey(Thread.currentThread().toString());
     }
 
     @Override

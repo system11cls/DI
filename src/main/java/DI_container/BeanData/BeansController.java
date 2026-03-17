@@ -38,6 +38,7 @@ public class BeansController {
         else {
             var obj = beanClass.scope.getInstance();
             id = metadata.objectToId.get(obj);
+            updateThreadObjects(beanClass, metadata.IdThreadToBeanObject.get(id), id);
         }
 
         return tClass.cast(metadata.IdThreadToBeanObject.get(id).object);
@@ -50,10 +51,15 @@ public class BeansController {
             try {
                 Method method = bObj.object.getClass().getMethod("init", args.getClass());
                 method.invoke(bObj.object, args);
+                Method setters = bObj.object.getClass().getMethod("setAllSetters");
+                setters.invoke(bObj.object);
+
             } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
         }
+
+
 
         this.objectsToInit.clear();
     }
@@ -142,8 +148,9 @@ public class BeansController {
 
     private void updateThreadObjects(BeanClass<?> beanClass, BeanObject<?> obj, String id) {
         for (var injectedClass : beanClass.injectedClasses) {
+            if (injectedClass == null) continue;
             if (injectedClass.scope.isThreadDepended() && injectedClass.scope.isNeededInCreation()) {
-                obj.dependecies.get(injectedClass.name).put(id, createBeanObject(injectedClass, id));
+                obj.dependecies.get(injectedClass.name).put(id + Thread.currentThread().getName(), createBeanObject(injectedClass, id));
             }
             else if (!injectedClass.scope.isThreadDepended()) {
                 var nextObj = getObjectByCommonIdOrDefault(obj, id, injectedClass.name);
