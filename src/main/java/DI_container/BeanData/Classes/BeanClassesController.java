@@ -2,6 +2,8 @@ package DI_container.BeanData.Classes;
 
 import DI_container.BeanData.BeanInfo;
 import DI_container.BeanScope.ScopeFactoty;
+import DI_container.Exceptions.BeanClassesControllerException;
+import DI_container.Exceptions.DiProxiesGenException;
 
 import java.util.*;
 
@@ -28,20 +30,27 @@ public class BeanClassesController {
         PRIMITIVE_CLASSES.put("string", String.class);
     }
 
-    public BeanClassesController(Map<String, BeanInfo> infos, ScopeFactoty scopeFactoty) throws ClassNotFoundException {
+    public BeanClassesController(Map<String, BeanInfo> infos, ScopeFactoty scopeFactoty) throws BeanClassesControllerException {
         this.infos = infos;
         this.scopeFactoty = scopeFactoty;
-        for (var info : infos.values()) {
-            classesVisited.clear();
-            createBeanClass(info);
-        }
+        try {
+            for (var info : infos.values()) {
+                classesVisited.clear();
+                createBeanClass(info);
+            }
 
-        for (var info : infos.values()) {
-            setSettersArgs(info, this.beanClasses.get(info.name));
-        }
+            for (var info : infos.values()) {
+                setSettersArgs(info, this.beanClasses.get(info.name));
+            }
 
-        for (var info : infos.values()) {
-            setInjected(info, this.beanClasses.get(info.name));
+            for (var info : infos.values()) {
+                setInjected(info, this.beanClasses.get(info.name));
+            }
+        } catch (Exception e) {
+            Throwable cause = e.getCause();
+            System.err.println("Причина ошибки: " + cause.getClass().getName());
+            System.err.println("Сообщение: " + cause.getMessage());
+            throw new BeanClassesControllerException(e + "\nПричина ошибки: " + cause.getClass().getName() + "\nСообщение: " + cause.getMessage());
         }
     }
 

@@ -22,7 +22,7 @@ public class BeansController {
     private final Metadata metadata;
     private final List<Pair<BeanObject<?>, List<ArgToCreateObjectDto>>> objectsToInit = new ArrayList<>();
 
-    BeansController(Map<String, BeanInfo> infos, ScopeFactoty scopeFactoty, Metadata metadata) throws ClassNotFoundException {
+    BeansController(Map<String, BeanInfo> infos, ScopeFactoty scopeFactoty, Metadata metadata) {
         this.beanClassesController = new BeanClassesController(infos, scopeFactoty);
         this.metadata = metadata;
     }

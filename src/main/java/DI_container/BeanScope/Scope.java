@@ -2,6 +2,8 @@ package DI_container.BeanScope;
 
 import DI_container.BeanData.ArgToCreateObjectDto;
 import DI_container.BeanData.Metadata.Metadata;
+import DI_container.Exceptions.DiProxiesGenException;
+import DI_container.Exceptions.ScopeException;
 import javassist.CannotCompileException;
 import javassist.NotFoundException;
 
@@ -28,13 +30,12 @@ public abstract class Scope {
 
     public final Object getInstance(String name, Class<?> tClass, List<ArgToCreateObjectDto> construction_args,
                                     List<ArgToCreateObjectDto> construction_args_to_generate_setters,
-                                    List<ArgToCreateObjectDto> args_setters, Metadata metadata) {
+                                    List<ArgToCreateObjectDto> args_setters, Metadata metadata) throws ScopeException {
         Object obj;
         try {
             obj = getOrCreateInstance(name, tClass, construction_args, construction_args_to_generate_setters, args_setters, metadata);
-
-        } catch (NotFoundException | CannotCompileException e) {
-            throw new RuntimeException(e);
+        } catch (ScopeException e) {
+            throw new ScopeException(e.getMessage());
         }
 
         return obj;
@@ -42,7 +43,7 @@ public abstract class Scope {
 
     protected abstract Object getOrCreateInstance(String name, Class<?> tClass, List<ArgToCreateObjectDto> construction_args,
                                                   List<ArgToCreateObjectDto> construction_args_to_generate_setters,
-                                                  List<ArgToCreateObjectDto> args_setters, Metadata metadata) throws NotFoundException, CannotCompileException;
+                                                  List<ArgToCreateObjectDto> args_setters, Metadata metadata) throws ScopeException;
 
     public abstract boolean isNeededInCreation();
 
@@ -50,11 +51,11 @@ public abstract class Scope {
 
     protected Object getProxy(String name, Class<?> tClass, List<ArgToCreateObjectDto> construction_args,
                               List<ArgToCreateObjectDto> construction_args_to_generate_setters,
-                              List<ArgToCreateObjectDto> args_setters, Metadata metadata) {
+                              List<ArgToCreateObjectDto> args_setters, Metadata metadata) throws ScopeException {
         try {
             return generator.getProxy(name, tClass, construction_args, construction_args_to_generate_setters, args_setters, metadata);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (DiProxiesGenException e) {
+            throw new ScopeException(e.getMessage());
         }
     }
 }

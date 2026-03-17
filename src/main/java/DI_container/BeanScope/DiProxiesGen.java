@@ -2,6 +2,7 @@ package DI_container.BeanScope;
 
 import DI_container.BeanData.ArgToCreateObjectDto;
 import DI_container.BeanData.Metadata.Metadata;
+import DI_container.Exceptions.DiProxiesGenException;
 import DI_container.ProxiesGenerator.ProxiesGenerator;
 import javassist.*;
 import javassist.bytecode.ClassFile;
@@ -20,7 +21,7 @@ public class DiProxiesGen implements ProxiesGenerator {
 
     public <T> T getProxy(String name, Class<T> tClass, List<ArgToCreateObjectDto> construction_args,
                           List<ArgToCreateObjectDto> construction_args_to_generate_setters,
-                          List<ArgToCreateObjectDto> args_setters, Metadata metadata) throws Exception {
+                          List<ArgToCreateObjectDto> args_setters, Metadata metadata) throws DiProxiesGenException {
 
         try {
             Class<?> newClass = null;
@@ -172,9 +173,8 @@ public class DiProxiesGen implements ProxiesGenerator {
                 newMethod.insertBefore("setAllSetters();");
                 ctClass.addMethod(newMethod);
             }
-
-
-                ctClass.writeFile();
+                try {
+                    ctClass.writeFile();
                 /*
                 ClassLoader currentClassLoader = tClass.getClassLoader();
                 GeneratedClassLoader loader = new GeneratedClassLoader(
@@ -184,15 +184,18 @@ public class DiProxiesGen implements ProxiesGenerator {
                 );
                 */
 
-                newClass = ctClass.toClass();
-                generated.put(name, newClass);
+                    newClass = ctClass.toClass();
+                    generated.put(name, newClass);
 
-                //System.out.println("Metadata ClassLoader: " + Metadata.class.getClassLoader());
-                //System.out.println("Current ClassLoader: " + newClass.getClassLoader());
+                    //System.out.println("Metadata ClassLoader: " + Metadata.class.getClassLoader());
+                    //System.out.println("Current ClassLoader: " + newClass.getClassLoader());
 
-                var constr = newClass.getConstructor(constrTypes.toArray(new Class<?>[0]));
+                    var constr = newClass.getConstructor(constrTypes.toArray(new Class<?>[0]));
 
-                return tClass.cast(constr.newInstance(constrVars.toArray()));
+                    return tClass.cast(constr.newInstance(constrVars.toArray()));
+                } catch (Exception e) {
+                    throw new DiProxiesGenException(e.getMessage());
+                }
             }
             else {
                 newClass = generated.get(name);
@@ -211,17 +214,24 @@ public class DiProxiesGen implements ProxiesGenerator {
                 System.out.println("Metadata ClassLoader: " + Metadata.class.getClassLoader());
                 System.out.println("Current ClassLoader: " + newClass.getClassLoader());
 
-                var constr = newClass.getConstructor(constrTypes.toArray(new Class<?>[0]));
+                try {
+                    var constr = newClass.getConstructor(constrTypes.toArray(new Class<?>[0]));
 
-                return tClass.cast(constr.newInstance(constrVars.toArray()));
+                    return tClass.cast(constr.newInstance(constrVars.toArray()));
+                }  catch (Exception e) {
+                    Throwable cause = e.getCause();
+                    System.err.println("Причина ошибки: " + cause.getClass().getName());
+                    System.err.println("Сообщение: " + cause.getMessage());
+                    throw new DiProxiesGenException(e + "\nПричина ошибки: " + cause.getClass().getName() + "\nСообщение: " + cause.getMessage());
+                }
             }
 
 
-        } catch (CannotCompileException e) {
+        } catch (Exception e) {
             Throwable cause = e.getCause();
             System.err.println("Причина ошибки: " + cause.getClass().getName());
             System.err.println("Сообщение: " + cause.getMessage());
-            throw new Exception(e + "\nПричина ошибки: " + cause.getClass().getName() + "\nСообщение: " + cause.getMessage());
+            throw new DiProxiesGenException(e + "\nПричина ошибки: " + cause.getClass().getName() + "\nСообщение: " + cause.getMessage());
         }
     }
 
