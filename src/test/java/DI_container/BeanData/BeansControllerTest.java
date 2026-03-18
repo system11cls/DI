@@ -4,7 +4,9 @@ import DI_container.BeanData.Metadata.Metadata;
 import DI_container.BeanScope.ScopeFactoty;
 import DI_container.BeanScope.TestClassesExamples.Simple.Ex1.Car;
 import DI_container.BeanScope.TestClassesExamples.Simple.Ex1.Engine;
+import javassist.ClassPool;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
