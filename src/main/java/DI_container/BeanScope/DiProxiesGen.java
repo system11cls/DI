@@ -24,6 +24,10 @@ public class DiProxiesGen implements ProxiesGenerator {
                           List<ArgToCreateObjectDto> args_setters, Metadata metadata) throws DiProxiesGenException {
 
         try {
+            generated.put(name, this.classPool.getClassLoader().loadClass(tClass.getName() + name + "Generated"));
+        } catch (ClassNotFoundException e) {}
+
+        try {
             Class<?> newClass = null;
             if (!generated.containsKey(name)) {
                 CtClass original = classPool.getCtClass(tClass.getCanonicalName());
