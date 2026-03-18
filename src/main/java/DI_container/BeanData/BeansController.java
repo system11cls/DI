@@ -170,4 +170,8 @@ public class BeansController {
     private BeanObject<?> getObjectByCommonIdOrDefaultFromMetadata(String id) {
         return metadata.IdThreadToBeanObject.get(id);
     }
+
+    public BeanClassesController getBeanClassesController() {
+        return beanClassesController;
+    }
 }
