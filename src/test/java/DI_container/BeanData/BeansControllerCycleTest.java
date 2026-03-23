@@ -89,6 +89,8 @@ public class BeansControllerCycleTest {
 
             var a = controller.getObject("classA", ClassA.class);
             a.useClassB();
+            a.classB.useClassA();
+            assertNotNull(a.classB.classA);
         });
     }
 
@@ -130,6 +132,8 @@ public class BeansControllerCycleTest {
 
             var b = controller.getObject("classB", ClassB.class);
             b.useClassA();
+            b.classA.useClassB();
+            assertNotNull(b.classA.classB);
         });
     }
 }
