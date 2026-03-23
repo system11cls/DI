@@ -20,7 +20,6 @@ import java.util.Map;
 public class BeansController {
     private final BeanClassesController beanClassesController;
     private final Metadata metadata;
-    private final List<Pair<BeanObject<?>, List<ArgToCreateObjectDto>>> objectsToInit = new ArrayList<>();
 
     BeansController(Map<String, BeanInfo> infos, ScopeFactoty scopeFactoty, Metadata metadata) {
         this.beanClassesController = new BeanClassesController(infos, scopeFactoty);
@@ -30,26 +29,26 @@ public class BeansController {
     public <T> T getObject(String name, Class<T> tClass) {
         var beanClass = beanClassesController.getBeanClassByName(name);
         String id;
+        List<BeanObject<?>> objectsToInit = new ArrayList<>();
         if (beanClass.scope.isNeededInCreation()) {
-            var newObject = createBeanObject(beanClass);
+            var newObject = createBeanObject(beanClass, objectsToInit);
             id = metadata.objectToId.get(newObject.object);
-            initObjects();
+            initObjects(objectsToInit);
         }
         else {
             var obj = beanClass.scope.getInstance();
             id = metadata.objectToId.get(obj);
-            updateThreadObjects(beanClass, metadata.IdThreadToBeanObject.get(id), id);
+            updateThreadObjects(beanClass, metadata.IdThreadToBeanObject.get(id), id, objectsToInit);
         }
 
         return tClass.cast(metadata.IdThreadToBeanObject.get(id).object);
     }
 
-    private void initObjects() {
-        for (var bObjectArgs : objectsToInit) {
-            var bObj = bObjectArgs.first;
-            var args = bObjectArgs.second;
+    private void initObjects(List<BeanObject<?>> objectsToInit) {
+        for (var bObj : objectsToInit) {
+            var args = getInitObjects(bObj);
             try {
-                Method method = bObj.object.getClass().getMethod("init", args.getClass());
+                Method method = bObj.object.getClass().getMethod("init", java.util.List.class);
                 method.invoke(bObj.object, args);
                 Method setters = bObj.object.getClass().getMethod("setAllSetters");
                 setters.invoke(bObj.object);
@@ -61,15 +60,45 @@ public class BeansController {
 
 
 
-        this.objectsToInit.clear();
+        objectsToInit.clear();
     }
 
-    private <T> BeanObject<T> createBeanObject(BeanClass<T> beanClass) {
+    private List<ArgToCreateObjectDto> getInitObjects(BeanObject<?> beanObject) {
+        List<ArgToCreateObjectDto> res = new ArrayList<>();
+
+        for (var argA : beanObject.beanClass.construction_args_to_setters_gen) {
+            var arg = (BeanClass) argA;
+            var beanClass = beanClassesController.getBeanClassByName(arg.name);
+            String id;
+            Object argObj;
+            if (beanClass.scope.isNeededInCreation()) {
+                List<BeanObject<?>> objectsToInit = new ArrayList<>();
+                var newObject = createBeanObject(beanClass, objectsToInit);
+                id = metadata.objectToId.get(newObject.object);
+                initObjects(objectsToInit);
+                argObj = newObject.object;
+            }
+            else {
+                List<BeanObject<?>> objectsToInit = new ArrayList<>();
+                var obj = beanClass.scope.getInstance();
+                id = metadata.objectToId.get(obj);
+                updateThreadObjects(beanClass, metadata.IdThreadToBeanObject.get(id), id, objectsToInit);
+                argObj = obj;
+            }
+            res.add(new ArgToCreateObjectDto(
+                arg.type, arg.name, argObj
+            ));
+        }
+
+        return res;
+    }
+
+    private <T> BeanObject<T> createBeanObject(BeanClass<T> beanClass, List<BeanObject<?>> objectsToInit) {
         String chainId = IdGen.generate();
         var newBeanObject = new BeanObject<T>(chainId);
         for (var injectedClass : beanClass.injectedClasses) {
             if (injectedClass == null) continue;
-            var depend = createBeanObject(injectedClass, chainId);
+            var depend = createBeanObject(injectedClass, chainId, objectsToInit);
             newBeanObject.dependecies.put(injectedClass.name, new HashMap<>());
             dependInDependencies(newBeanObject, depend, chainId, injectedClass.name);
         }
@@ -79,20 +108,22 @@ public class BeansController {
         metadata.objectToId.put(newBeanObject.object, newBeanObject.id);
         metadata.IdThreadToBeanObject.put(newBeanObject.id, newBeanObject);
 
+        objectsToInit.add(newBeanObject);
         return newBeanObject;
     }
 
-    private <T> BeanObject<?> createBeanObject(BeanClass<T> beanClass, String chainId) {
+    private <T> BeanObject<?> createBeanObject(BeanClass<T> beanClass, String chainId, List<BeanObject<?>> objectsToInit) {
         if (!beanClass.scope.isNeededInCreation()) {
             var objId = metadata.objectToId.get(beanClass.scope.getInstance());
             var beanObject = this.getObjectByCommonIdOrDefaultFromMetadata(objId);
-            updateThreadObjects(beanClass, beanObject, chainId);
+            updateThreadObjects(beanClass, beanObject, chainId, objectsToInit);
             return beanObject;
         }
 
         var newBeanObject = new BeanObject<T>(IdGen.generate());
         for (var injectedClass : beanClass.injectedClasses) {
-            var depend = createBeanObject(injectedClass, chainId);
+            if (injectedClass == null) continue;
+            var depend = createBeanObject(injectedClass, chainId, objectsToInit);
             newBeanObject.dependecies.put(injectedClass.name, new HashMap<>());
             dependInDependencies(newBeanObject, depend, newBeanObject.id, injectedClass.name);
             dependInDependencies(newBeanObject, depend, chainId, injectedClass.name);
@@ -103,19 +134,18 @@ public class BeansController {
         metadata.objectToId.put(newBeanObject.object, newBeanObject.id);
         metadata.IdThreadToBeanObject.put(newBeanObject.id, newBeanObject);
 
+        objectsToInit.add(newBeanObject);
         return newBeanObject;
     }
 
     private void createObject(BeanClass<?> beanClass, BeanObject<?> beanObject, String id) {
         List<ArgToCreateObjectDto> constructorArgs = getListOfArgs(beanClass.construction_args,
                 beanObject, id);
-        List<ArgToCreateObjectDto> construction_args_to_setters_gen = getListOfArgs(beanClass.construction_args_to_setters_gen,
-                beanObject, id);
         List<ArgToCreateObjectDto> setters_args = getListOfArgs(beanClass.setters_args,
                 beanObject, id);
 
         beanObject.setObject(beanClass.scope.getInstance(beanClass.name, beanClass.type, constructorArgs,
-                construction_args_to_setters_gen, setters_args, metadata));
+                null, setters_args, metadata));
     }
 
     private List<ArgToCreateObjectDto> getListOfArgs(List<BeanClassA<?>> listOfClasses,
@@ -146,15 +176,15 @@ public class BeansController {
         parent.dependecies.get(dependName).put(id + Thread.currentThread().getName(), depend);
     }
 
-    private void updateThreadObjects(BeanClass<?> beanClass, BeanObject<?> obj, String id) {
+    private void updateThreadObjects(BeanClass<?> beanClass, BeanObject<?> obj, String id, List<BeanObject<?>> objectsToInit) {
         for (var injectedClass : beanClass.injectedClasses) {
             if (injectedClass == null) continue;
             if (injectedClass.scope.isThreadDepended() && injectedClass.scope.isNeededInCreation()) {
-                obj.dependecies.get(injectedClass.name).put(id + Thread.currentThread().getName(), createBeanObject(injectedClass, id));
+                obj.dependecies.get(injectedClass.name).put(id + Thread.currentThread().getName(), createBeanObject(injectedClass, id, objectsToInit));
             }
             else if (!injectedClass.scope.isThreadDepended()) {
                 var nextObj = getObjectByCommonIdOrDefault(obj, id, injectedClass.name);
-                updateThreadObjects(injectedClass, nextObj, id);
+                updateThreadObjects(injectedClass, nextObj, id, objectsToInit);
             }
         }
     }
@@ -169,5 +199,9 @@ public class BeansController {
 
     private BeanObject<?> getObjectByCommonIdOrDefaultFromMetadata(String id) {
         return metadata.IdThreadToBeanObject.get(id);
+    }
+
+    public BeanClassesController getBeanClassesController() {
+        return beanClassesController;
     }
 }

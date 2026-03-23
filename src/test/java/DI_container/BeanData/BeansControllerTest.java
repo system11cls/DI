@@ -4,9 +4,6 @@ import DI_container.BeanData.Metadata.Metadata;
 import DI_container.BeanScope.ScopeFactoty;
 import DI_container.BeanScope.TestClassesExamples.Simple.Ex1.Car;
 import DI_container.BeanScope.TestClassesExamples.Simple.Ex1.Engine;
-import javassist.ClassPool;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -20,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class BeansControllerTest {
 
     @Test
-    void testControllerSimpleEx1Singleton() throws ClassNotFoundException {
+    void testControllerSimpleEx1Singleton() {
         var infos = new HashMap<String, BeanInfo>();
         var engineInfo = new BeanInfo();
         engineInfo.name = "engine";
@@ -60,7 +57,7 @@ class BeansControllerTest {
     }
 
     @Test
-    void testSingletone() throws ClassNotFoundException {
+    void testSingletone() {
         var infos = new HashMap<String, BeanInfo>();
         var engineInfo = new BeanInfo();
         engineInfo.name = "engine";
@@ -99,7 +96,7 @@ class BeansControllerTest {
 
 
     @Test
-    void testSingletonPrototype() throws ClassNotFoundException {
+    void testSingletonPrototype() {
         var infos = new HashMap<String, BeanInfo>();
         var engineInfo = new BeanInfo();
         engineInfo.name = "engine";
@@ -139,7 +136,7 @@ class BeansControllerTest {
     }
 
     @Test
-    void testThread() throws ClassNotFoundException, ExecutionException, InterruptedException {
+    void testThread() throws ExecutionException, InterruptedException {
         var infos = new HashMap<String, BeanInfo>();
         var engineInfo = new BeanInfo();
         engineInfo.name = "engine";
@@ -174,7 +171,7 @@ class BeansControllerTest {
     }
 
     @Test
-    void testSingletonThread() throws ClassNotFoundException, ExecutionException, InterruptedException {
+    void testSingletonThread() throws ExecutionException, InterruptedException {
         var infos = new HashMap<String, BeanInfo>();
         var engineInfo = new BeanInfo();
         engineInfo.name = "engine";

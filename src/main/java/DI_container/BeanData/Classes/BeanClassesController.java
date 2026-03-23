@@ -40,6 +40,10 @@ public class BeanClassesController {
             }
 
             for (var info : infos.values()) {
+                setLazyArgs(info, this.beanClasses.get(info.name));
+            }
+
+            for (var info : infos.values()) {
                 setSettersArgs(info, this.beanClasses.get(info.name));
             }
 
@@ -47,10 +51,9 @@ public class BeanClassesController {
                 setInjected(info, this.beanClasses.get(info.name));
             }
         } catch (Exception e) {
-            Throwable cause = e.getCause();
-            System.err.println("Причина ошибки: " + cause.getClass().getName());
-            System.err.println("Сообщение: " + cause.getMessage());
-            throw new BeanClassesControllerException(e + "\nПричина ошибки: " + cause.getClass().getName() + "\nСообщение: " + cause.getMessage());
+            System.err.println("Причина ошибки: " + ((Throwable) e).getClass().getName());
+            System.err.println("Сообщение: " + e.getMessage());
+            throw new BeanClassesControllerException(e + "\nПричина ошибки: " + ((Throwable) e).getClass().getName() + "\nСообщение: " + e.getMessage());
         }
     }
 
@@ -85,7 +88,7 @@ public class BeanClassesController {
                 throw new RuntimeException("Cycle found on " + info.name + " and " + arg.nameOfBean);
             }
 
-            if (!this.beanClasses.containsKey(arg.nameOfBean)) {
+            if (!this.beanClasses.containsKey(arg.nameOfBean) && !arg.isLazy) {
                 createBeanClass(this.infos.get(arg.nameOfBean));
             }
         }
@@ -107,10 +110,7 @@ public class BeanClassesController {
                 beanClass.injectedClasses.add(argClass);
                 newArg = argClass;
             }
-            if (arg.isLazy) {
-                beanClass.construction_args_to_setters_gen.add(newArg);
-            }
-            beanClass.construction_args.add(newArg);
+            if (!arg.isLazy) beanClass.construction_args.add(newArg);
         }
     }
 
@@ -127,6 +127,14 @@ public class BeanClassesController {
                 List<BeanClass<?>> newList = new ArrayList<>();
                 newList.add(beanClass);
                 this.beanClassesByInterface.put(inter, newList);
+            }
+        }
+    }
+
+    private void setLazyArgs(BeanInfo info, BeanClass<?> beanClass) {
+        for (var arg : info.constructor_args) {
+            if (arg.isLazy) {
+                beanClass.construction_args_to_setters_gen.add(beanClasses.get(arg.nameOfBean));
             }
         }
     }

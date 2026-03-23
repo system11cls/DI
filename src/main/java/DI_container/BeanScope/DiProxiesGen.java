@@ -232,10 +232,9 @@ public class DiProxiesGen implements ProxiesGenerator {
 
 
         } catch (Exception e) {
-            Throwable cause = e.getCause();
-            System.err.println("Причина ошибки: " + cause.getClass().getName());
-            System.err.println("Сообщение: " + cause.getMessage());
-            throw new DiProxiesGenException(e + "\nПричина ошибки: " + cause.getClass().getName() + "\nСообщение: " + cause.getMessage());
+            System.err.println("Причина ошибки: " + ((Throwable) e).getClass().getName());
+            System.err.println("Сообщение: " + e.getMessage());
+            throw new DiProxiesGenException(e + "\nПричина ошибки: " + ((Throwable) e).getClass().getName() + "\nСообщение: " + e.getMessage());
         }
     }
 

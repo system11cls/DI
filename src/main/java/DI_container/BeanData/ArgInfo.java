@@ -14,4 +14,11 @@ public class ArgInfo {
         this.obj = obj;
         this.nameOfBean = nameOfBean;
     }
+
+    public ArgInfo(String nameOfBean, Object obj, String name, boolean isLazy) {
+        this.nameOfBean = nameOfBean;
+        this.obj = obj;
+        this.name = name;
+        this.isLazy = isLazy;
+    }
 }
