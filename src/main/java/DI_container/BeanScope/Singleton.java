@@ -39,4 +39,9 @@ public class Singleton extends Scope {
         this.obj = null;
     }
 
+    @Override
+    public int getCntCreated() {
+        return obj == null ? 0 : 1;
+    }
+
 }

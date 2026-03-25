@@ -204,4 +204,10 @@ public class BeansController {
     public BeanClassesController getBeanClassesController() {
         return beanClassesController;
     }
+
+    public int getCntCreated(String beanName) {
+        var beanClass = beanClassesController.getBeanClassByName(beanName);
+        return beanClass.scope.getCntCreated();
+    }
+
 }

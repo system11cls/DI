@@ -58,4 +58,6 @@ public abstract class Scope {
             throw new ScopeException(e.getMessage());
         }
     }
+
+    public abstract int getCntCreated();
 }

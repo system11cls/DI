@@ -37,4 +37,9 @@ public class ThreadScope extends Scope {
     public void deleteObject(Object obj) {
         this.objects.clear();
     }
+
+    @Override
+    public int getCntCreated() {
+        return this.objects.size();
+    }
 }
