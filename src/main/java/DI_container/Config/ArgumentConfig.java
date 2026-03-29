@@ -14,6 +14,9 @@ public class ArgumentConfig {
     @XmlAttribute(name = "type")
     private String type = "java.lang.String";
 
+    @XmlAttribute(name = "lazy")
+    private boolean lazy = false;
+
     public ArgumentConfig() {}
 
     public String getRef() { return ref; }
