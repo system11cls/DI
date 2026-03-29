@@ -4,10 +4,10 @@ import DI_container.BeanData.Metadata.Metadata;
 import DI_container.BeanScope.ScopeFactoty;
 import DI_container.BeanScope.TestClassesExamples.Simple.Ex1.Car;
 import DI_container.BeanScope.TestClassesExamples.Simple.Ex1.Engine;
+import DI_container.Config.BeanInfoMapper;
+import DI_container.Config.XmlConfigTestSupport;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
@@ -16,38 +16,18 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class BeansControllerTest {
 
+    private BeansController controllerFromEx1(String xmlFileName) {
+        var cfg = XmlConfigTestSupport.load(XmlConfigTestSupport.EX1 + xmlFileName);
+        return new BeansController(
+                BeanInfoMapper.toBeanInfoMap(cfg),
+                new ScopeFactoty(),
+                new Metadata()
+        );
+    }
+
     @Test
     void testControllerSimpleEx1Singleton() {
-        var infos = new HashMap<String, BeanInfo>();
-        var engineInfo = new BeanInfo();
-        engineInfo.name = "engine";
-        engineInfo.setters_args = List.of();
-        engineInfo.injected_classes = List.of();
-        engineInfo.interfacesImplemented = List.of();
-        engineInfo.constructor_args = List.of(
-                new ArgInfo("type","string", "XM1"),
-                new ArgInfo("horsepower","int", 120)
-        );
-        engineInfo.classPath = Engine.class.getCanonicalName();
-        engineInfo.scope = "singleton";
-        infos.put(engineInfo.name, engineInfo);
-
-        var carInfo = new BeanInfo();
-        carInfo.classPath = Car.class.getCanonicalName();
-        carInfo.constructor_args = List.of(
-                new ArgInfo("model","string", "XM1M"),
-                new ArgInfo("engine","engine", null)
-        );
-        carInfo.injected_classes = List.of(Engine.class.getCanonicalName());
-        carInfo.name = "car";
-        carInfo.interfacesImplemented = List.of();
-        carInfo.setters_args = List.of();
-        carInfo.scope = "singleton";
-        infos.put(carInfo.name, carInfo);
-
-        var controller = new BeansController(
-            infos, new ScopeFactoty(), new Metadata()
-        );
+        var controller = controllerFromEx1("singleton.xml");
 
         Car car = controller.getObject("car", Car.class);
 
@@ -58,75 +38,16 @@ class BeansControllerTest {
 
     @Test
     void testSingletone() {
-        var infos = new HashMap<String, BeanInfo>();
-        var engineInfo = new BeanInfo();
-        engineInfo.name = "engine";
-        engineInfo.setters_args = List.of();
-        engineInfo.injected_classes = List.of();
-        engineInfo.interfacesImplemented = List.of();
-        engineInfo.constructor_args = List.of(
-                new ArgInfo("type","string", "XM1"),
-                new ArgInfo("horsepower","int", 120)
-        );
-        engineInfo.classPath = Engine.class.getCanonicalName();
-        engineInfo.scope = "singleton";
-        infos.put(engineInfo.name, engineInfo);
-
-        var carInfo = new BeanInfo();
-        carInfo.classPath = Car.class.getCanonicalName();
-        carInfo.constructor_args = List.of(
-                new ArgInfo("model","string", "XM1M"),
-                new ArgInfo("engine","engine", null)
-        );
-        carInfo.injected_classes = List.of(Engine.class.getCanonicalName());
-        carInfo.name = "car";
-        carInfo.interfacesImplemented = List.of();
-        carInfo.setters_args = List.of();
-        carInfo.scope = "singleton";
-        infos.put(carInfo.name, carInfo);
-
-        var controller = new BeansController(
-                infos, new ScopeFactoty(), new Metadata()
-        );
+        var controller = controllerFromEx1("singleton.xml");
 
         Car car = controller.getObject("car", Car.class);
         Car car2 = controller.getObject("car", Car.class);
         assertEquals(car2, car);
     }
 
-
     @Test
     void testSingletonPrototype() {
-        var infos = new HashMap<String, BeanInfo>();
-        var engineInfo = new BeanInfo();
-        engineInfo.name = "engine";
-        engineInfo.setters_args = List.of();
-        engineInfo.injected_classes = List.of();
-        engineInfo.interfacesImplemented = List.of();
-        engineInfo.constructor_args = List.of(
-                new ArgInfo("type","string", "XM1"),
-                new ArgInfo("horsepower","int", 120)
-        );
-        engineInfo.classPath = Engine.class.getCanonicalName();
-        engineInfo.scope = "prototype";
-        infos.put(engineInfo.name, engineInfo);
-
-        var carInfo = new BeanInfo();
-        carInfo.classPath = Car.class.getCanonicalName();
-        carInfo.constructor_args = List.of(
-                new ArgInfo("model","string", "XM1M"),
-                new ArgInfo("engine","engine", null)
-        );
-        carInfo.injected_classes = List.of(Engine.class.getCanonicalName());
-        carInfo.name = "car";
-        carInfo.interfacesImplemented = List.of();
-        carInfo.setters_args = List.of();
-        carInfo.scope = "singleton";
-        infos.put(carInfo.name, carInfo);
-
-        var controller = new BeansController(
-                infos, new ScopeFactoty(), new Metadata()
-        );
+        var controller = controllerFromEx1("prototype-engine.xml");
 
         Car car = controller.getObject("car", Car.class);
         Engine engine = controller.getObject("engine", Engine.class);
@@ -137,30 +58,12 @@ class BeansControllerTest {
 
     @Test
     void testThread() throws ExecutionException, InterruptedException {
-        var infos = new HashMap<String, BeanInfo>();
-        var engineInfo = new BeanInfo();
-        engineInfo.name = "engine";
-        engineInfo.setters_args = List.of();
-        engineInfo.injected_classes = List.of();
-        engineInfo.interfacesImplemented = List.of();
-        engineInfo.constructor_args = List.of(
-                new ArgInfo("type","string", "XM1"),
-                new ArgInfo("horsepower","int", 120)
-        );
-        engineInfo.classPath = Engine.class.getCanonicalName();
-        engineInfo.scope = "thread";
-        infos.put(engineInfo.name, engineInfo);
-
-        var controller = new BeansController(
-                infos, new ScopeFactoty(), new Metadata()
-        );
+        var controller = controllerFromEx1("thread-engine.xml");
 
         Engine engine = controller.getObject("engine", Engine.class);
 
         Engine engine1;
-        Callable<Engine> ctask = () -> {
-          return controller.getObject("engine", Engine.class);
-        };
+        Callable<Engine> ctask = () -> controller.getObject("engine", Engine.class);
         FutureTask<Engine> future = new FutureTask<>(ctask);
         new Thread(future).start();
 
@@ -172,40 +75,10 @@ class BeansControllerTest {
 
     @Test
     void testSingletonThread() throws ExecutionException, InterruptedException {
-        var infos = new HashMap<String, BeanInfo>();
-        var engineInfo = new BeanInfo();
-        engineInfo.name = "engine";
-        engineInfo.setters_args = List.of();
-        engineInfo.injected_classes = List.of();
-        engineInfo.interfacesImplemented = List.of();
-        engineInfo.constructor_args = List.of(
-                new ArgInfo("type","string", "XM1"),
-                new ArgInfo("horsepower","int", 120)
-        );
-        engineInfo.classPath = Engine.class.getCanonicalName();
-        engineInfo.scope = "thread";
-        infos.put(engineInfo.name, engineInfo);
-
-        var carInfo = new BeanInfo();
-        carInfo.classPath = Car.class.getCanonicalName();
-        carInfo.constructor_args = List.of(
-                new ArgInfo("model","string", "XM1M"),
-                new ArgInfo("engine","engine", null)
-        );
-        carInfo.injected_classes = List.of(Engine.class.getCanonicalName());
-        carInfo.name = "car";
-        carInfo.interfacesImplemented = List.of();
-        carInfo.setters_args = List.of();
-        carInfo.scope = "singleton";
-        infos.put(carInfo.name, carInfo);
-
-        var controller = new BeansController(
-                infos, new ScopeFactoty(), new Metadata()
-        );
+        var controller = controllerFromEx1("singleton-car-thread-engine.xml");
 
         Car car = controller.getObject("car", Car.class);
         Engine engine = controller.getObject("engine", Engine.class);
-
 
         Callable<Car> ctask = () -> {
             Car car1 = controller.getObject("car", Car.class);
@@ -219,7 +92,5 @@ class BeansControllerTest {
         assertNotEquals(engine, car.engine);
         car.startCar();
         assertEquals(engine, car.engine);
-
     }
-
 }

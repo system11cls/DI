@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<container>
+    <bean id="classA" class="DI_container.BeanScope.TestClassesExamples.Simple.Ex2.ClassA" scope="singleton">
+        <constructor-args>
+            <arg ref="classB" lazy="true"/>
+        </constructor-args>
+    </bean>
+    <bean id="classB" class="DI_container.BeanScope.TestClassesExamples.Simple.Ex2.ClassB" scope="singleton">
+        <constructor-args>
+            <arg ref="classA"/>
+        </constructor-args>
+    </bean>
+</container>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<container>
+    <bean id="engine" class="DI_container.BeanScope.TestClassesExamples.Simple.Ex1.Engine" scope="thread">
+        <constructor-args>
+            <arg type="java.lang.String" value="XM1"/>
+            <arg type="java.lang.Integer" value="120"/>
+        </constructor-args>
+    </bean>
+    <bean id="car" class="DI_container.BeanScope.TestClassesExamples.Simple.Ex1.Car" scope="singleton">
+        <constructor-args>
+            <arg type="java.lang.String" value="XM1M"/>
+            <arg ref="engine"/>
+        </constructor-args>
+    </bean>
+</container>
