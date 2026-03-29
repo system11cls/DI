@@ -8,13 +8,13 @@ import jakarta.xml.bind.Unmarshaller;
 import java.io.File;
 import java.io.InputStream;
 
+
 public class DiConfigParser {
 
     private final JAXBContext jaxbContext;
 
     public DiConfigParser() {
         try {
-            // Инициализируем контекст для корневого класса конфигурации
             this.jaxbContext = JAXBContext.newInstance(ContainerConfig.class);
         } catch (JAXBException e) {
             throw new RuntimeException("Failed to initialize JAXBContext", e);

@@ -6,32 +6,31 @@ import DI_container.Exceptions.DiProxiesGenException;
 import DI_container.ProxiesGenerator.ProxiesGenerator;
 import javassist.*;
 import javassist.bytecode.ClassFile;
-import javassist.util.proxy.ProxyFactory;
-
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class DiProxiesGen implements ProxiesGenerator {
     private final ClassPool classPool = ClassPool.getDefault();
     private final Map<String, Class<?>> generated = new HashMap<>();
+    /** Isolates generated class names across JVM (e.g. multiple JUnit tests); avoids reusing another test's *Generated class. */
+    private final String generatedClassSuffix = "_" + UUID.randomUUID().toString().replace("-", "");
 
+    private String generatedTypeName(Class<?> tClass, String beanName) {
+        return tClass.getCanonicalName() + beanName + "Generated" + generatedClassSuffix;
+    }
 
     public <T> T getProxy(String name, Class<T> tClass, List<ArgToCreateObjectDto> construction_args,
                           List<ArgToCreateObjectDto> construction_args_to_generate_setters,
                           List<ArgToCreateObjectDto> args_setters, Metadata metadata) throws DiProxiesGenException {
 
         try {
-            generated.put(name, this.classPool.getClassLoader().loadClass(tClass.getName() + name + "Generated"));
-        } catch (ClassNotFoundException e) {}
-
-        try {
             Class<?> newClass = null;
             if (!generated.containsKey(name)) {
                 CtClass original = classPool.getCtClass(tClass.getCanonicalName());
-                CtClass ctClass = classPool.makeClass(tClass.getCanonicalName() + name + "Generated");
+                CtClass ctClass = classPool.makeClass(generatedTypeName(tClass, name));
                 ctClass.setSuperclass(original);
                 ctClass.getClassFile().setMajorVersion(ClassFile.JAVA_8);
 
@@ -223,10 +222,10 @@ public class DiProxiesGen implements ProxiesGenerator {
 
                     return tClass.cast(constr.newInstance(constrVars.toArray()));
                 }  catch (Exception e) {
-                    Throwable cause = e.getCause();
-                    System.err.println("Причина ошибки: " + cause.getClass().getName());
-                    System.err.println("Сообщение: " + cause.getMessage());
-                    throw new DiProxiesGenException(e + "\nПричина ошибки: " + cause.getClass().getName() + "\nСообщение: " + cause.getMessage());
+                    Throwable detail = e.getCause() != null ? e.getCause() : e;
+                    System.err.println("Причина ошибки: " + detail.getClass().getName());
+                    System.err.println("Сообщение: " + detail.getMessage());
+                    throw new DiProxiesGenException(e + "\nПричина ошибки: " + detail.getClass().getName() + "\nСообщение: " + detail.getMessage());
                 }
             }
 

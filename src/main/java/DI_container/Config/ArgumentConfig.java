@@ -1,10 +1,13 @@
 package DI_container.Config;
 
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlTransient;
 
+@XmlAccessorType(XmlAccessType.FIELD)
 public class ArgumentConfig {
 
-    // Ссылка на другой бин по ID
     @XmlAttribute(name = "ref")
     private String ref;
 
@@ -28,7 +31,13 @@ public class ArgumentConfig {
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
 
+    @XmlTransient
     public boolean isReference() {
         return ref != null && !ref.isEmpty();
+    }
+
+    @XmlTransient
+    public boolean isLazy() {
+        return lazy;
     }
 }

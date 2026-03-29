@@ -2,8 +2,6 @@ package DI_container.BeanScope;
 
 import DI_container.BeanData.ArgToCreateObjectDto;
 import DI_container.BeanData.Metadata.Metadata;
-import javassist.CannotCompileException;
-import javassist.NotFoundException;
 
 import java.util.List;
 
