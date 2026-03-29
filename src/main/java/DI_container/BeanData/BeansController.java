@@ -21,7 +21,7 @@ public class BeansController {
     private final BeanClassesController beanClassesController;
     private final Metadata metadata;
 
-    BeansController(Map<String, BeanInfo> infos, ScopeFactoty scopeFactoty, Metadata metadata) {
+    public BeansController(Map<String, BeanInfo> infos, ScopeFactoty scopeFactoty, Metadata metadata) {
         this.beanClassesController = new BeanClassesController(infos, scopeFactoty);
         this.metadata = metadata;
     }
