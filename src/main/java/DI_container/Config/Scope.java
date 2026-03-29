@@ -9,5 +9,8 @@ public enum Scope {
     SINGLETON,
 
     @XmlEnumValue("prototype")
-    PROTOTYPE
+    PROTOTYPE,
+
+    @XmlEnumValue("thread")
+    THREAD
 }
