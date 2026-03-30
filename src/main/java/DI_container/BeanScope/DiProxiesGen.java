@@ -15,7 +15,6 @@ import java.util.UUID;
 public class DiProxiesGen implements ProxiesGenerator {
     private final ClassPool classPool = ClassPool.getDefault();
     private final Map<String, Class<?>> generated = new HashMap<>();
-    /** Isolates generated class names across JVM (e.g. multiple JUnit tests); avoids reusing another test's *Generated class. */
     private final String generatedClassSuffix = "_" + UUID.randomUUID().toString().replace("-", "");
 
     private String generatedTypeName(Class<?> tClass, String beanName) {
@@ -108,6 +107,7 @@ public class DiProxiesGen implements ProxiesGenerator {
                             "            java.util.Iterator iterator = (java.util.Iterator) keySet.iterator();\n" +
                             "\n" +
                             "            try {\n" +
+                            "                id = beanObject.workingId;\n" +
                             "                while (iterator.hasNext()) {\n" +
                             "                    Object arg = iterator.next();\n" +
                             "\n" +
@@ -125,7 +125,8 @@ public class DiProxiesGen implements ProxiesGenerator {
                             "                    Object objArg = threadMap.get(threadKey);\n" +
                             "\n" +
                             "                    if (objArg == null) {\n" +
-                            "                        throw new RuntimeException(\"Dependency not found for key: \".concat(threadKey));\n" +
+                            "                        objArg = threadMap.get(id);\n" +
+                            "                        if (objArg == null) throw new RuntimeException(\"Dependency not found for key: \".concat(threadKey).concat(\" object: \").concat(this.toString()));\n" +
                             "                    }\n" +
                             "\n" +
                             "                    if (!(objArg instanceof DI_container.BeanData.Objects.BeanObject)) {\n" +
@@ -177,7 +178,7 @@ public class DiProxiesGen implements ProxiesGenerator {
                 ctClass.addMethod(newMethod);
             }
                 try {
-                    ctClass.writeFile();
+                    //ctClass.writeFile();
                 /*
                 ClassLoader currentClassLoader = tClass.getClassLoader();
                 GeneratedClassLoader loader = new GeneratedClassLoader(
@@ -214,8 +215,8 @@ public class DiProxiesGen implements ProxiesGenerator {
                 constrTypes.add(Metadata.class);
                 constrVars.add(metadata);
 
-                System.out.println("Metadata ClassLoader: " + Metadata.class.getClassLoader());
-                System.out.println("Current ClassLoader: " + newClass.getClassLoader());
+                //System.out.println("Metadata ClassLoader: " + Metadata.class.getClassLoader());
+                //System.out.println("Current ClassLoader: " + newClass.getClassLoader());
 
                 try {
                     var constr = newClass.getConstructor(constrTypes.toArray(new Class<?>[0]));

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<container>
+    <bean id="engine" class="Examples.Ex3.EngineImpl" scope="singleton">
+        <constructor-args>
+            <arg type="java.lang.String" value="new"/>
+            <arg type="java.lang.Integer" value="120"/>
+        </constructor-args>
+    </bean>
+
+    <bean id="car" class="Examples.Ex3.Car" scope="singleton">
+        <constructor-args>
+            <arg type="java.lang.String" value="XM1"/>
+        </constructor-args>
+    </bean>
+</container>

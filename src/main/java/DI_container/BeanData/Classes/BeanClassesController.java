@@ -148,6 +148,18 @@ public class BeanClassesController {
                 var primClassInstance = primClass.cast(arg.obj);
                 newArg = new BeanClassPrimType<>(primClass, primClassInstance, arg.nameOfBean);
             }
+            else if (arg.nameOfBean == null && arg.obj != null) {
+                var beanNames = beanClassesByInterface.get((String)(arg.obj));
+                if (beanNames == null) throw new RuntimeException("No beans implementing: " + (String)(arg.obj));
+
+                if (beanNames.size() > 1) {
+                    throw new RuntimeException("More than one implementation: " + (String)(arg.obj));
+                }
+
+                var argClass =  beanNames.getFirst();
+                beanClass.injectedClasses.add(argClass);
+                newArg = argClass;
+            }
             else {
                 if (!this.beanClasses.containsKey(arg.nameOfBean)) {
                     throw new RuntimeException("unknown setters` arg: " + arg.nameOfBean + " in " + info.name + " initialisation");

@@ -7,6 +7,9 @@ import DI_container.BeanData.Classes.BeanClassesController;
 import DI_container.BeanData.Metadata.Metadata;
 import DI_container.BeanData.Objects.BeanObject;
 import DI_container.BeanScope.ScopeFactoty;
+import DI_container.Exceptions.BeanClassesControllerException;
+import DI_container.Provider.Provider;
+import DI_container.Provider.ProviderFactory;
 import DI_container.Tools.IdGen;
 import DI_container.Tools.Pair;
 
@@ -20,10 +23,29 @@ import java.util.Map;
 public class BeansController {
     private final BeanClassesController beanClassesController;
     private final Metadata metadata;
+    private final Map<String, List<String>> interfacesToNames = new HashMap<>();
+    private final ProviderFactory providerFactory;
 
     public BeansController(Map<String, BeanInfo> infos, ScopeFactoty scopeFactoty, Metadata metadata) {
         this.beanClassesController = new BeanClassesController(infos, scopeFactoty);
+        setInterfaces(infos);
         this.metadata = metadata;
+        this.providerFactory = new ProviderFactory(this, metadata, scopeFactoty);
+    }
+
+    private void setInterfaces(Map<String, BeanInfo> infos) {
+        for (var info : infos.values()) {
+            for (var inter : info.interfacesImplemented) {
+                if (interfacesToNames.containsKey(inter)) {
+                    interfacesToNames.get(inter).add(info.name);
+                }
+                else {
+                    var l = new ArrayList<String>();
+                    l.add(info.name);
+                    interfacesToNames.put(inter, l);
+                }
+            }
+        }
     }
 
     public <T> T getObject(String name, Class<T> tClass) {
@@ -208,6 +230,22 @@ public class BeansController {
     public int getCntCreated(String beanName) {
         var beanClass = beanClassesController.getBeanClassByName(beanName);
         return beanClass.scope.getCntCreated();
+    }
+
+    public String getNameByInterface(String interfaceName) {
+        if (this.interfacesToNames.containsKey(interfaceName)) {
+            var interfaceList =  interfacesToNames.get(interfaceName);
+            if (interfaceList.size() != 1) {
+                throw new RuntimeException("Two or more classes implement interface");
+            }
+
+            return interfaceList.getFirst();
+        }
+        throw new BeanClassesControllerException("No class implementing interface");
+    }
+
+    public <T> Provider<T> getProvider(String beanName, Class<T> tClass) {
+        return providerFactory.getProvider(beanName, tClass);
     }
 
 }

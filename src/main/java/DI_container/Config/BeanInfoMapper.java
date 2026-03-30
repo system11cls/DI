@@ -48,6 +48,11 @@ public final class BeanInfoMapper {
         for (BeanConfig b : config.getBeans()) {
             out.put(b.getId(), toBeanInfo(b, byId));
         }
+        try {
+            AnnotationAdder.addAnnotations(out);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         return out;
     }
 
@@ -66,8 +71,8 @@ public final class BeanInfoMapper {
             info.classPath = beanConfig.getClassName();
             info.scope = beanConfig.getScope().name().toLowerCase();
             info.constructor_args = buildArgInfos(beanConfig, byId);
-            info.setters_args = List.of();
-            info.interfacesImplemented = List.of();
+            info.setters_args = new ArrayList<>();
+            info.interfacesImplemented = new ArrayList<>();
             info.injected_classes = collectInjectedCanonicalNames(beanConfig, byId);
             return info;
         } catch (ClassNotFoundException e) {
