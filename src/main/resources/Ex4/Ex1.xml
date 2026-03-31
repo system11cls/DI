@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<container>
+    <bean id="classA" class="Examples.Ex4.ClassA" scope="singleton">
+        <constructor-args>
+            <arg ref="classB"/>
+        </constructor-args>
+    </bean>
+    <bean id="classB" class="Examples.Ex4.ClassB" scope="singleton">
+        <constructor-args>
+            <arg ref="classA"/>
+        </constructor-args>
+    </bean>
+</container>

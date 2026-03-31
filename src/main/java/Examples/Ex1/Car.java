@@ -12,7 +12,7 @@ public class Car {
     public Car() {}
 
     public void startCar() {
-        System.out.println("Автомобиль готов к поездке");
+        System.out.println("Автомобиль готов к поездке: ".concat(this.toString()));
         engine.start();
     }
 

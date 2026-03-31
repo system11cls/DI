@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<container>
+    <bean id="engine" class="Examples.Ex1.Engine" scope="singleton">
+        <constructor-args>
+            <arg type="java.lang.String" value="new"/>
+            <arg type="java.lang.Integer" value="120"/>
+        </constructor-args>
+    </bean>
+
+    <bean id="car" class="Examples.Ex1.Car" scope="thread">
+        <constructor-args>
+            <arg type="java.lang.String" value="XM1"/>
+            <arg ref="engine"/>
+        </constructor-args>
+    </bean>
+
+    <bean id="garage" class="Examples.Ex1.Garage" scope='singleton'>
+        <constructor-args>
+            <arg ref="car"/>
+        </constructor-args>
+    </bean>
+</container>
