@@ -25,6 +25,16 @@ public class DI_containerImpl implements DI_container {
         );
     }
 
+    public DI_containerImpl(String configFilepath, ScopeFactoty scopeFactoty) {
+        DiConfigParser parser = new DiConfigParser();
+        var cfg = parser.parse(new File(configFilepath));
+        this.beansController = new BeansController(
+                BeanInfoMapper.toBeanInfoMap(cfg),
+                scopeFactoty,
+                new Metadata()
+        );
+    }
+
     @Override
     public <T> T get(String name, Class<T> tClass) {
         return beansController.getObject(name, tClass);

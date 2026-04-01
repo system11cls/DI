@@ -247,5 +247,4 @@ public class BeansController {
     public <T> Provider<T> getProvider(String beanName, Class<T> tClass) {
         return providerFactory.getProvider(beanName, tClass);
     }
-
 }
